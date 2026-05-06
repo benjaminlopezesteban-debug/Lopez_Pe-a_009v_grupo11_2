@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"name": "gestionArchivo",
+			"path": "."
+		},
+		{
+			"name": "ejemplo hospital   flyway   docker   mysql   exceptionHandler   req-res DTO",
+			"path": "../ejemplo hospital   flyway   docker   mysql   exceptionHandler   req-res DTO"
+		},
+		{
+			"name": "gestionArchivo-reserva_atencion",
+			"path": "../gestionArchivo-reserva_atencion"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "disabled"
+	}
+}
