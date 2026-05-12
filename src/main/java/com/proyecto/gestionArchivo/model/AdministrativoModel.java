@@ -12,36 +12,37 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "PACIENTE")
-public class PacienteModel {
+@Table(name = "ADMINISTRATIVO")
+public class AdministrativoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long idPaciente;
+    private Long idAdministrativo;
 
     @Column(nullable = false, unique = true, length = 13)
-    private String numRut;
+    private String rut;
 
-    @Column(name = "pnombre", nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String pnombre;
 
-    @Column(name = "snombre", length = 100)
+    @Column(length = 100)
     private String snombre;
 
-    @Column(name = "appaterno", nullable = false, length = 150)
+    @Column(nullable = false, length = 150)
     private String papellido;
 
-    @Column(name = "apmaterno", nullable = false, length = 150)
+    @Column(nullable = false, length = 150)
     private String sapellido;
 
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNaci;
 
-    @Column(name = "direccion_particular", nullable = false, length = 150)
-    private String direccion;
+    @Column(name = "fecha_contrato")
+    private LocalDate fechaContrato;
 
-    @Column(name = "nacionality", nullable = false, length = 25)
-    private String nacionalidad;
+    @Column(nullable = false, unique = true, length = 150)
+    private String email;
 
+    @Column(nullable = false, length = 150)
+    private String cargo;
 }

@@ -1,45 +1,48 @@
 package com.proyecto.gestionArchivo.security;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 
+import javax.crypto.SecretKey;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
 @Service
 public class JwtService {
 
+    private final String secret;
     private final String issuer;
     private final long expirationMillis;
-    private final Algorithm algorithm;
 
     public JwtService(
             @Value("${security.jwt.secret}") String secret,
             @Value("${security.jwt.issuer:gestionArchivo}") String issuer,
             @Value("${security.jwt.expiration-ms:3600000}") long expirationMillis
     ) {
+        this.secret = secret;
         this.issuer = issuer;
         this.expirationMillis = expirationMillis;
-        this.algorithm = Algorithm.HMAC256(secret);
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         Instant now = Instant.now();
         Instant expiration = now.plusMillis(expirationMillis);
 
-        return JWT.create()
-                .withIssuer(issuer)
-                .withSubject(username)
-                .withIssuedAt(Date.from(now))
-                .withExpiresAt(Date.from(expiration))
-                .sign(algorithm);
+        return Jwts.builder()
+                .issuer(issuer)
+                .subject(username)
+                .claim("role", role)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiration))
+                .signWith(signingKey())
+                .compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -49,32 +52,35 @@ public class JwtService {
 
     public boolean isTokenValid(String token) {
         try {
-            verifier().verify(token);
+            parseClaims(token);
             return true;
-        } catch (JWTVerificationException exception) {
+        } catch (JwtException | IllegalArgumentException exception) {
             return false;
         }
     }
 
     public String extractUsername(String token) {
-        return decode(token).getSubject();
+        return parseClaims(token).getSubject();
     }
 
     public Instant extractExpiration(String token) {
-        return decode(token).getExpiresAt().toInstant();
+        return parseClaims(token).getExpiration().toInstant();
     }
 
     public long getExpirationMillis() {
         return expirationMillis;
     }
 
-    private DecodedJWT decode(String token) {
-        return verifier().verify(token);
+    private Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(signingKey())
+                .requireIssuer(issuer)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    private JWTVerifier verifier() {
-        return JWT.require(algorithm)
-                .withIssuer(issuer)
-                .build();
+    private SecretKey signingKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 }

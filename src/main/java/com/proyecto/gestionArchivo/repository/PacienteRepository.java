@@ -9,12 +9,11 @@ import com.proyecto.gestionArchivo.model.PacienteModel;
 
 @Repository
 public interface PacienteRepository extends JpaRepository<PacienteModel, Long> {
-    
 
-    Optional<PacienteModel> findByRut(String rut);
+    Optional<PacienteModel> findByNumRut(String numRut);
 
-    boolean existsByRut(String rut);
+    boolean existsByNumRut(String numRut);
 
-    Optional<PacienteModel> findByPnombreAndAppaternoAndApmaterno(String pnombre, String appaterno, String apmaterno);
+    Optional<PacienteModel> findByPnombreAndPapellidoAndSapellido(String pnombre, String papellido, String sapellido);
 
 }

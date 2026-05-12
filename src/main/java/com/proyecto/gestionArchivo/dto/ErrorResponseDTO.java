@@ -3,7 +3,7 @@ package com.proyecto.gestionArchivo.dto;
 import java.time.Instant;
 import java.util.Map;
 
-public record ErrorResponse(
+public record ErrorResponseDTO(
         Instant timestamp,
         int status,
         String error,
@@ -11,17 +11,17 @@ public record ErrorResponse(
         String path,
         Map<String, String> validationErrors
 ) {
-    public static ErrorResponse of(int status, String error, String message, String path) {
-        return new ErrorResponse(Instant.now(), status, error, message, path, null);
+    public static ErrorResponseDTO of(int status, String error, String message, String path) {
+        return new ErrorResponseDTO(Instant.now(), status, error, message, path, null);
     }
 
-    public static ErrorResponse withValidationErrors(
+    public static ErrorResponseDTO withValidationErrors(
             int status,
             String error,
             String message,
             String path,
             Map<String, String> validationErrors
     ) {
-        return new ErrorResponse(Instant.now(), status, error, message, path, validationErrors);
+        return new ErrorResponseDTO(Instant.now(), status, error, message, path, validationErrors);
     }
 }

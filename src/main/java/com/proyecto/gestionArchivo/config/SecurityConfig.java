@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -25,7 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proyecto.gestionArchivo.dto.ErrorResponse;
+import com.proyecto.gestionArchivo.dto.ErrorResponseDTO;
 import com.proyecto.gestionArchivo.security.JwtAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,27 +32,31 @@ import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 public class SecurityConfig {
 
-    private final ObjectMapper objectMapper;
-
-    public SecurityConfig(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            AuthenticationProvider authenticationProvider,
             JwtAuthenticationFilter jwtAuthenticationFilter
     ) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers(
+                                "/api/v1/auth/login",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/h2-console/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint()))
-                .authenticationProvider(authenticationProvider)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint())
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                writeErrorResponse(request, response, HttpStatus.FORBIDDEN, "No tienes permisos para acceder a este recurso"))
+                )
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -65,16 +67,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder
-    ) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return provider;
-    }
-
-    @Bean
     public UserDetailsService userDetailsService(
             @Value("${app.auth.username:admin}") String username,
             @Value("${app.auth.password:admin123}") String password
@@ -82,7 +74,7 @@ public class SecurityConfig {
         UserDetails user = User.builder()
                 .username(username)
                 .password(passwordEncoder().encode(password))
-                .roles("USER")
+                .roles("ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(user);
     }
@@ -102,14 +94,22 @@ public class SecurityConfig {
             HttpServletResponse response,
             org.springframework.security.core.AuthenticationException exception
     ) throws IOException {
-        ErrorResponse errorResponse = ErrorResponse.of(
-                HttpStatus.UNAUTHORIZED.value(),
-                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-                "Token ausente, invalido o expirado",
+        writeErrorResponse(request, response, HttpStatus.UNAUTHORIZED, "Token ausente, invalido o expirado");
+    }
+
+    private void writeErrorResponse(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            HttpStatus status,
+            String message
+    ) throws IOException {
+        ErrorResponseDTO errorResponse = ErrorResponseDTO.of(
+                status.value(),
+                status.getReasonPhrase(),
+                message,
                 request.getRequestURI()
         );
-
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }

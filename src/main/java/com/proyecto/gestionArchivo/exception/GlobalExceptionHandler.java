@@ -12,9 +12,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.server.ResponseStatusException;
 
-import com.proyecto.gestionArchivo.dto.ErrorResponse;
+import com.proyecto.gestionArchivo.dto.ErrorResponseDTO;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -23,7 +22,7 @@ import jakarta.validation.ConstraintViolationException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(
+    public ResponseEntity<ErrorResponseDTO> handleValidation(
             MethodArgumentNotValidException exception,
             HttpServletRequest request
     ) {
@@ -32,7 +31,7 @@ public class GlobalExceptionHandler {
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
-        ErrorResponse response = ErrorResponse.withValidationErrors(
+        ErrorResponseDTO response = ErrorResponseDTO.withValidationErrors(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "La solicitud contiene campos invalidos",
@@ -44,7 +43,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolation(
+    public ResponseEntity<ErrorResponseDTO> handleConstraintViolation(
             ConstraintViolationException exception,
             HttpServletRequest request
     ) {
@@ -53,7 +52,7 @@ public class GlobalExceptionHandler {
                 errors.put(violation.getPropertyPath().toString(), violation.getMessage())
         );
 
-        ErrorResponse response = ErrorResponse.withValidationErrors(
+        ErrorResponseDTO response = ErrorResponseDTO.withValidationErrors(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "La solicitud contiene campos invalidos",
@@ -64,40 +63,46 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
-    @ExceptionHandler({BadCredentialsException.class})
-    public ResponseEntity<ErrorResponse> handleBadCredentials(Exception exception, HttpServletRequest request) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(ResourceNotFoundException exception, HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBadRequest(BadRequestException exception, HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUnauthorized(UnauthorizedException exception, HttpServletRequest request) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBadCredentials(BadCredentialsException exception, HttpServletRequest request) {
         return buildResponse(HttpStatus.UNAUTHORIZED, "Credenciales invalidas", request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException exception, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponseDTO> handleAccessDenied(AccessDeniedException exception, HttpServletRequest request) {
         return buildResponse(HttpStatus.FORBIDDEN, "No tienes permisos para acceder a este recurso", request);
     }
 
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ErrorResponse> handleResponseStatus(
-            ResponseStatusException exception,
-            HttpServletRequest request
-    ) {
-        HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
-        return buildResponse(status, exception.getReason(), request);
-    }
-
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrity(
+    public ResponseEntity<ErrorResponseDTO> handleDataIntegrity(
             DataIntegrityViolationException exception,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.CONFLICT, "El recurso viola una restriccion de datos", request);
+        return buildResponse(HttpStatus.BAD_REQUEST, "El recurso viola una restriccion de datos", request);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneric(Exception exception, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception exception, HttpServletRequest request) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor", request);
     }
 
-    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message, HttpServletRequest request) {
-        ErrorResponse response = ErrorResponse.of(
+    private ResponseEntity<ErrorResponseDTO> buildResponse(HttpStatus status, String message, HttpServletRequest request) {
+        ErrorResponseDTO response = ErrorResponseDTO.of(
                 status.value(),
                 status.getReasonPhrase(),
                 message,
