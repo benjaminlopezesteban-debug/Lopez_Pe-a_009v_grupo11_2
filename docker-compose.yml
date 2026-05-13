@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: gestion_archivo_db
+    restart: always
+    environment:
+      POSTGRES_DB: gestion_archivo
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - gestion_archivo_data:/var/lib/postgresql/data
+    networks:
+      - gestion_archivo_net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: gestion_archivo_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gestionarchivo.cl
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8081:80"
+    depends_on:
+      - postgres
+    networks:
+      - gestion_archivo_net
+
+volumes:
+  gestion_archivo_data:
+
+networks:
+  gestion_archivo_net:
