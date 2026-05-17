@@ -1,35 +1,366 @@
 services:
-  postgres:
-    image: postgres:16
-    container_name: gestion_archivo_db
-    restart: always
+  paciente-db:
+    image: postgres:16-alpine
+    container_name: paciente-db
     environment:
-      POSTGRES_DB: gestion_archivo
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: paciente_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - gestion_archivo_data:/var/lib/postgresql/data
+      - paciente_data:/var/lib/postgresql/data
     networks:
-      - gestion_archivo_net
+      - gestion_microservicios_net
+
+  ficha-clinica-db:
+    image: postgres:16-alpine
+    container_name: ficha-clinica-db
+    environment:
+      POSTGRES_DB: ficha_clinica_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - ficha_clinica_data:/var/lib/postgresql/data
+    networks:
+      - gestion_microservicios_net
+
+  reserva-atencion-db:
+    image: postgres:16-alpine
+    container_name: reserva-atencion-db
+    environment:
+      POSTGRES_DB: reserva_atencion_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - reserva_atencion_data:/var/lib/postgresql/data
+    networks:
+      - gestion_microservicios_net
+
+  expediente-hospitalizacion-db:
+    image: postgres:16-alpine
+    container_name: expediente-hospitalizacion-db
+    environment:
+      POSTGRES_DB: expediente_hospitalizacion_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - expediente_hospitalizacion_data:/var/lib/postgresql/data
+    networks:
+      - gestion_microservicios_net
+
+  administrativo-db:
+    image: postgres:16-alpine
+    container_name: administrativo-db
+    environment:
+      POSTGRES_DB: administrativo_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5437:5432"
+    volumes:
+      - administrativo_data:/var/lib/postgresql/data
+    networks:
+      - gestion_microservicios_net
+
+  estante-db:
+    image: postgres:16-alpine
+    container_name: estante-db
+    environment:
+      POSTGRES_DB: estante_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5438:5432"
+    volumes:
+      - estante_data:/var/lib/postgresql/data
+    networks:
+      - gestion_microservicios_net
+
+  prestamo-db:
+    image: postgres:16-alpine
+    container_name: prestamo-db
+    environment:
+      POSTGRES_DB: prestamo_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5439:5432"
+    volumes:
+      - prestamo_data:/var/lib/postgresql/data
+    networks:
+      - gestion_microservicios_net
+
+  auditoria-db:
+    image: postgres:16-alpine
+    container_name: auditoria-db
+    environment:
+      POSTGRES_DB: auditoria_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5440:5432"
+    volumes:
+      - auditoria_data:/var/lib/postgresql/data
+    networks:
+      - gestion_microservicios_net
+
+  registro-archivado-db:
+    image: postgres:16-alpine
+    container_name: registro-archivado-db
+    environment:
+      POSTGRES_DB: registro_archivado_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5441:5432"
+    volumes:
+      - registro_archivado_data:/var/lib/postgresql/data
+    networks:
+      - gestion_microservicios_net
+
+  registro-ingreso-archivo-db:
+    image: postgres:16-alpine
+    container_name: registro-ingreso-archivo-db
+    environment:
+      POSTGRES_DB: registro_ingreso_archivo_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5442:5432"
+    volumes:
+      - registro_ingreso_archivo_data:/var/lib/postgresql/data
+    networks:
+      - gestion_microservicios_net
+
+  paciente-service:
+    build: ./microservicios/paciente-service
+    container_name: paciente-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://paciente-db:5432/paciente_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+    ports:
+      - "8081:8081"
+    depends_on:
+      - paciente-db
+    networks:
+      - gestion_microservicios_net
+
+  ficha-clinica-service:
+    build: ./microservicios/ficha-clinica-service
+    container_name: ficha-clinica-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ficha-clinica-db:5432/ficha_clinica_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+      PACIENTE_SERVICE_URL: http://paciente-service:8081
+      ESTANTE_SERVICE_URL: http://estante-service:8086
+    ports:
+      - "8082:8082"
+    depends_on:
+      - ficha-clinica-db
+      - paciente-service
+      - estante-service
+    networks:
+      - gestion_microservicios_net
+
+  reserva-atencion-service:
+    build: ./microservicios/reserva-atencion-service
+    container_name: reserva-atencion-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://reserva-atencion-db:5432/reserva_atencion_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+      PACIENTE_SERVICE_URL: http://paciente-service:8081
+    ports:
+      - "8083:8083"
+    depends_on:
+      - reserva-atencion-db
+      - paciente-service
+    networks:
+      - gestion_microservicios_net
+
+  expediente-hospitalizacion-service:
+    build: ./microservicios/expediente-hospitalizacion-service
+    container_name: expediente-hospitalizacion-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://expediente-hospitalizacion-db:5432/expediente_hospitalizacion_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+      RESERVA_SERVICE_URL: http://reserva-atencion-service:8083
+    ports:
+      - "8084:8084"
+    depends_on:
+      - expediente-hospitalizacion-db
+      - reserva-atencion-service
+    networks:
+      - gestion_microservicios_net
+
+  administrativo-service:
+    build: ./microservicios/administrativo-service
+    container_name: administrativo-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://administrativo-db:5432/administrativo_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+    ports:
+      - "8085:8085"
+    depends_on:
+      - administrativo-db
+    networks:
+      - gestion_microservicios_net
+
+  estante-service:
+    build: ./microservicios/estante-service
+    container_name: estante-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://estante-db:5432/estante_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+    ports:
+      - "8086:8086"
+    depends_on:
+      - estante-db
+    networks:
+      - gestion_microservicios_net
+
+  prestamo-service:
+    build: ./microservicios/prestamo-service
+    container_name: prestamo-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://prestamo-db:5432/prestamo_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+      ADMINISTRATIVO_SERVICE_URL: http://administrativo-service:8085
+      FICHA_SERVICE_URL: http://ficha-clinica-service:8082
+    ports:
+      - "8087:8087"
+    depends_on:
+      - prestamo-db
+      - administrativo-service
+      - ficha-clinica-service
+    networks:
+      - gestion_microservicios_net
+
+  auditoria-service:
+    build: ./microservicios/auditoria-service
+    container_name: auditoria-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auditoria-db:5432/auditoria_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+      ADMINISTRATIVO_SERVICE_URL: http://administrativo-service:8085
+      FICHA_SERVICE_URL: http://ficha-clinica-service:8082
+    ports:
+      - "8088:8088"
+    depends_on:
+      - auditoria-db
+      - administrativo-service
+      - ficha-clinica-service
+    networks:
+      - gestion_microservicios_net
+
+  registro-archivado-service:
+    build: ./microservicios/registro-archivado-service
+    container_name: registro-archivado-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://registro-archivado-db:5432/registro_archivado_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+      ADMINISTRATIVO_SERVICE_URL: http://administrativo-service:8085
+      FICHA_SERVICE_URL: http://ficha-clinica-service:8082
+      EXPEDIENTE_SERVICE_URL: http://expediente-hospitalizacion-service:8084
+    ports:
+      - "8089:8089"
+    depends_on:
+      - registro-archivado-db
+      - administrativo-service
+      - ficha-clinica-service
+      - expediente-hospitalizacion-service
+    networks:
+      - gestion_microservicios_net
+
+  registro-ingreso-archivo-service:
+    build: ./microservicios/registro-ingreso-archivo-service
+    container_name: registro-ingreso-archivo-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://registro-ingreso-archivo-db:5432/registro_ingreso_archivo_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      APP_AUTH_USERNAME: admin
+      APP_AUTH_PASSWORD: admin123
+      ADMINISTRATIVO_SERVICE_URL: http://administrativo-service:8085
+      EXPEDIENTE_SERVICE_URL: http://expediente-hospitalizacion-service:8084
+    ports:
+      - "8090:8090"
+    depends_on:
+      - registro-ingreso-archivo-db
+      - administrativo-service
+      - expediente-hospitalizacion-service
+    networks:
+      - gestion_microservicios_net
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: gestion_archivo_pgadmin
-    restart: always
+    container_name: gestion-microservicios-pgadmin
+    profiles:
+      - pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@gestionarchivo.cl
       PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
-      - "8081:80"
+      - "5050:80"
     depends_on:
-      - postgres
+      - paciente-db
+      - ficha-clinica-db
+      - reserva-atencion-db
+      - expediente-hospitalizacion-db
+      - administrativo-db
+      - estante-db
+      - prestamo-db
+      - auditoria-db
+      - registro-archivado-db
+      - registro-ingreso-archivo-db
     networks:
-      - gestion_archivo_net
+      - gestion_microservicios_net
 
 volumes:
-  gestion_archivo_data:
+  paciente_data:
+  ficha_clinica_data:
+  reserva_atencion_data:
+  expediente_hospitalizacion_data:
+  administrativo_data:
+  estante_data:
+  prestamo_data:
+  auditoria_data:
+  registro_archivado_data:
+  registro_ingreso_archivo_data:
 
 networks:
-  gestion_archivo_net:
+  gestion_microservicios_net:
+    driver: bridge
