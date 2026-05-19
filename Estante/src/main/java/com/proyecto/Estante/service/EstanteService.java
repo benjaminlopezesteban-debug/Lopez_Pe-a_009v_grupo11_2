@@ -1,7 +1,6 @@
 package com.proyecto.Estante.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,7 @@ public class EstanteService {
     }
 
     public List<EstanteModel> listAll(){
-        return
+        return estanteRepository.findAll();
     }
     
 

@@ -18,7 +18,7 @@ public class FichaClinicaModel {
 
     @Id
     @Column(nullable = false, length = 40)
-    private String folioFicha;
+    private Long folioFicha;
 
     @Column(nullable = false)
     private LocalDate fechaCreacion;

@@ -1,4 +1,4 @@
-package com.proyecto.gestionArchivo.model;
+package com.proyecto.prestamo.model;
 
 import java.time.LocalDate;
 
