@@ -22,8 +22,8 @@ public class ExpedienteHospitalizacionModel {
     @Column(name = "cod_expediente", nullable=false)
     private String codExpediente;
     //rut del paciente
-    @Column(name = "rut_paciente", nullable=false)
-    private int rutPaciente;
+    @Column(name = "rut_paciente", nullable=false, length = 20)
+    private String rutPaciente;
 
     //esta digitalizado?
     @Column (name = "digitalizacion", nullable=false)
@@ -31,6 +31,10 @@ public class ExpedienteHospitalizacionModel {
 
     //id_Reserva
     @Column (name = "id_reserva", nullable=false)
-    private int idBooking;
+    private Long idBooking;
+
+    // id del registro de archivado (opcional)
+    @Column(name = "id_registro_archivado")
+    private Long idRegistroArchivado;
 
 }

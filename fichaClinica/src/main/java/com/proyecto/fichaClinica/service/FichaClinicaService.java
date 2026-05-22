@@ -230,11 +230,11 @@ public class FichaClinicaService {
                                                    EstanteResponse estante) {
         String nombreCompleto = paciente.getPnombre() + " "
                 + (paciente.getSnombre() != null ? paciente.getSnombre() + " " : "")
-                + paciente.getAppaterno();
+                + paciente.getPapellido();
 
         return UbicacionFichaResponse.builder()
                 .folioFicha(ficha.getFolioFicha())
-                .rutPaciente(paciente.getRut())
+                .rutPaciente(paciente.getNumRut())
                 .nombreCompletoPaciente(nombreCompleto)
                 .numEstante(estante.getNumEstante())
                 .numBodega(estante.getNumBodega())

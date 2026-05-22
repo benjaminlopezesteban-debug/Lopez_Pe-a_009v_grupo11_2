@@ -1,4 +1,4 @@
-package com.proyecto.gestionArchivo.dto;
+package com.proyecto.prestamo.dto;
 
 public record AdministrativoResponseDTO(
         Long idAdministrativo,

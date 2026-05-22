@@ -35,7 +35,7 @@ public class AdministrativoService {
         return administrativoRepository.save(administrativo);
     }
 
-    public void delet(Long id){
+    public void delete(Long id){
         administrativoRepository.deleteById(id);
     }
 
@@ -43,4 +43,3 @@ public class AdministrativoService {
         return administrativoRepository.findByCharge(charge);
     }
 }
-

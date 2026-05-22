@@ -11,7 +11,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.proyecto.fichaClinica.dto.response.ErrorResponse;
+import com.proyecto.prestamo.dto.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -41,10 +42,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    //no se encuentra recurso, llama a la clase NotFoundException 
-    @ExceptionHandler(NotFoundException.class)
+    // Recurso no encontrado
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(
-            NotFoundException ex,
+            ResourceNotFoundException ex,
             HttpServletRequest request
     ) {
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -57,27 +58,6 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-    }
-
-
-
-    // Error al comunicarse con otro servicio
-    @ExceptionHandler(RemoteServiceException.class)
-    public ResponseEntity<ErrorResponse> handleRemoteService(
-            RemoteServiceException ex,
-            HttpServletRequest request
-    ) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_GATEWAY.value())
-                .error("Bad Gateway")
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .details(null)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(errorResponse);
-
     }
 
     //Para capturar y manejar cualquier otra excepcion no controlada o prevista

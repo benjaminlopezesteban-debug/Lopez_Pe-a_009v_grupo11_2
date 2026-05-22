@@ -10,13 +10,13 @@ import lombok.Data;
 @Builder
 public class PacienteResponse {
 
-    private Long id;
-    private String rut;
+    private Long id;              // id del paciente en MS Paciente
+    private String numRut;        // rut del paciente
     private String pnombre;
     private String snombre;
-    private String appaterno;
-    private String apmaterno;
-    private LocalDate bornDate;
-    private String direction;
-    private String nacionality;
+    private String papellido;
+    private String sapellido;
+    private LocalDate fechaNaci;
+    private String direccion;
+    private String nacionalidad;
 }

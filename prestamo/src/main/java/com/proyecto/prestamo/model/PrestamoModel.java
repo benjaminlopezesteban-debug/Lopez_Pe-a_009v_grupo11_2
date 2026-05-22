@@ -4,12 +4,9 @@ import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -22,13 +19,12 @@ public class PrestamoModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPrestamo;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_administrativo", nullable = false)
-    private AdministrativoModel administrativo;
+    // referencias externas como IDs/clave
+    @Column(name = "id_administrativo", nullable = false)
+    private Long idAdministrativo;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "folio_ficha", nullable = false)
-    private FichaClinicaModel fichaClinica;
+    @Column(name = "folio_ficha", nullable = false, length = 50)
+    private String folioFicha;
 
     @Column(nullable = false)
     private LocalDate fechaPrestamo;

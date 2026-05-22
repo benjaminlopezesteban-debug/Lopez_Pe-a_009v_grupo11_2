@@ -1,4 +1,4 @@
-package com.proyecto.gestionArchivo.dto;
+package com.proyecto.prestamo.dto;
 
 import java.time.Instant;
 import java.util.Map;

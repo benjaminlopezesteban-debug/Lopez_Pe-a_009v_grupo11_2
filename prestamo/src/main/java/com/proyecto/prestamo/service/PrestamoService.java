@@ -1,32 +1,23 @@
-package com.proyecto.gestionArchivo.service;
+package com.proyecto.prestamo.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proyecto.gestionArchivo.dto.PrestamoRequestDTO;
-import com.proyecto.gestionArchivo.dto.PrestamoResponseDTO;
-import com.proyecto.gestionArchivo.exception.ResourceNotFoundException;
-import com.proyecto.gestionArchivo.model.PrestamoModel;
-import com.proyecto.gestionArchivo.repository.PrestamoRepository;
+import com.proyecto.prestamo.dto.PrestamoRequestDTO;
+import com.proyecto.prestamo.dto.PrestamoResponseDTO;
+import com.proyecto.prestamo.exception.ResourceNotFoundException;
+import com.proyecto.prestamo.model.PrestamoModel;
+import com.proyecto.prestamo.repository.PrestamoRepository;
 
 @Service
 @Transactional
 public class PrestamoService {
 
     private final PrestamoRepository prestamoRepository;
-    private final AdministrativoService administrativoService;
-    private final FichaClinicaService fichaClinicaService;
-
-    public PrestamoService(
-            PrestamoRepository prestamoRepository,
-            AdministrativoService administrativoService,
-            FichaClinicaService fichaClinicaService
-    ) {
+    public PrestamoService(PrestamoRepository prestamoRepository) {
         this.prestamoRepository = prestamoRepository;
-        this.administrativoService = administrativoService;
-        this.fichaClinicaService = fichaClinicaService;
     }
 
     @Transactional(readOnly = true)
@@ -61,8 +52,8 @@ public class PrestamoService {
     }
 
     private void copy(PrestamoRequestDTO request, PrestamoModel prestamo) {
-        prestamo.setAdministrativo(administrativoService.findEntity(request.idAdministrativo()));
-        prestamo.setFichaClinica(fichaClinicaService.findEntity(request.folioFicha()));
+        prestamo.setIdAdministrativo(request.idAdministrativo());
+        prestamo.setFolioFicha(request.folioFicha());
         prestamo.setFechaPrestamo(request.fechaPrestamo());
         prestamo.setFechaDevolucion(request.fechaDevolucion());
         prestamo.setEstado(request.estado());
@@ -71,8 +62,8 @@ public class PrestamoService {
     private PrestamoResponseDTO toResponse(PrestamoModel prestamo) {
         return new PrestamoResponseDTO(
                 prestamo.getIdPrestamo(),
-                prestamo.getAdministrativo().getIdAdministrativo(),
-                prestamo.getFichaClinica().getFolioFicha(),
+                prestamo.getIdAdministrativo(),
+                prestamo.getFolioFicha(),
                 prestamo.getFechaPrestamo(),
                 prestamo.getFechaDevolucion(),
                 prestamo.getEstado()

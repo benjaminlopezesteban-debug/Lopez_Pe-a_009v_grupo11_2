@@ -1,15 +1,16 @@
-package com.hospital_vm_cl.hospital_vm_ficha.client;
+package com.proyecto.fichaClinica.client;
 
-import com.hospital_vm_cl.hospital_vm_ficha.dtos.response.PacienteResponse;
+import com.proyecto.fichaClinica.dto.response.PacienteResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 // Cliente Feign que consume el MS de Pacientes
 // El name debe coincidir con spring.application.name del MS Paciente
-@FeignClient(name = "hospital-vm-paciente", path = "/api/v1/pacientes")
+@FeignClient(name = "paciente", path = "/api/v1/pacientes")
 public interface PacienteClient {
 
     @GetMapping("/{id}")
@@ -20,10 +21,10 @@ public interface PacienteClient {
     PacienteResponse obtenerPacientePorRut(@PathVariable String rut);
 
     // Endpoint para búsqueda por nombres/apellido — el MS Paciente debe exponer este endpoint
-    @GetMapping("/buscar")
+    @GetMapping(value = "/buscar")
     List<PacienteResponse> buscarPorNombreOApellido(
-            @PathVariable String pnombre,
-            @PathVariable String snombre,
-            @PathVariable String appaterno
+            @RequestParam String pnombre,
+            @RequestParam(required = false) String snombre,
+            @RequestParam String appaterno
     );
 }
