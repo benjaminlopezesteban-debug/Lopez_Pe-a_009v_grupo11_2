@@ -36,12 +36,10 @@ public class RegistroArchivadoService {
         this.administrativoClient = administrativoClient;
     }
 
-    @Transactional(readOnly = true)
     public List<RegistroArchivadoResponseDTO> findAll() {
         return registroArchivadoRepository.findAll().stream().map(this::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
     public RegistroArchivadoResponseDTO findById(Long id) {
         return toResponse(findEntity(id));
     }
@@ -80,9 +78,7 @@ public class RegistroArchivadoService {
         registroArchivadoRepository.delete(findEntity(id));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // HELPERS PRIVADOS — Feign calls con manejo de excepciones uniforme
-    // ─────────────────────────────────────────────────────────────────────────────
+     //PRIVADOS — Feign calls 
 
     private void validarExpediente(Long idExpediente) {
         try {
@@ -122,6 +118,7 @@ public class RegistroArchivadoService {
                 .orElseThrow(() -> new NotFoundException("RegistroArchivado no encontrado con id: " + id));
     }
 
+    
     private void copy(RegistroArchivadoRequestDTO request, RegistroArchivadoModel registro) {
         registro.setFolioFicha(request.folioFicha());
         registro.setIdAdministrativo(request.idAdministrativo());

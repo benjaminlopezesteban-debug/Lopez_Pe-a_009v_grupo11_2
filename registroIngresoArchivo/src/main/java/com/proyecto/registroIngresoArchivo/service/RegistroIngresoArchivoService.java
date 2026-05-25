@@ -32,12 +32,10 @@ public class RegistroIngresoArchivoService {
         this.administrativoClient = administrativoClient;
     }
 
-    @Transactional(readOnly = true)
     public List<RegistroIngresoArchivoResponseDTO> findAll() {
         return registroIngresoArchivoRepository.findAll().stream().map(this::toResponse).toList();
     }
 
-    @Transactional(readOnly = true)
     public RegistroIngresoArchivoResponseDTO findById(Long id) {
         return toResponse(findEntity(id));
     }
@@ -62,9 +60,8 @@ public class RegistroIngresoArchivoService {
         registroIngresoArchivoRepository.delete(findEntity(id));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // HELPERS PRIVADOS — Feign calls con manejo de excepciones uniforme
-    // ─────────────────────────────────────────────────────────────────────────────
+    
+    //  PRIVADO — Feign calls 
 
     private void validarExpediente(Long idExpediente) {
         try {
