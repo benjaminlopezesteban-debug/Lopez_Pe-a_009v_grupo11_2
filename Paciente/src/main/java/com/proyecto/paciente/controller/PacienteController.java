@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.proyecto.paciente.dto.PacienteRequestDTO;
-import com.proyecto.paciente.dto.PacienteResponseDTO;
-import com.proyecto.paciente.dto.PacienteFeignResponse;
+import com.proyecto.paciente.dto.request.PacienteRequestDTO;
+import com.proyecto.paciente.dto.response.PacienteFeignResponse;
+import com.proyecto.paciente.dto.response.PacienteResponseDTO;
 import com.proyecto.paciente.service.PacienteService;
 
 import jakarta.validation.Valid;
@@ -40,7 +41,6 @@ public class PacienteController {
         return ResponseEntity.ok(pacienteService.findById(id));
     }
 
-    // Endpoints usados por MS FichaClinica vía Feign
     @GetMapping("/rut/{rut}")
     public ResponseEntity<PacienteFeignResponse> findByRut(@PathVariable String rut) {
         return ResponseEntity.ok(pacienteService.findByRut(rut));
@@ -50,7 +50,7 @@ public class PacienteController {
     public ResponseEntity<List<PacienteFeignResponse>> buscar(
             @RequestParam String pnombre,
             @RequestParam(required = false) String snombre,
-            @RequestParam(name = "appaterno") String appaterno) {
+            @RequestParam String appaterno) {
         return ResponseEntity.ok(pacienteService.searchByNombre(pnombre, snombre, appaterno));
     }
 

@@ -5,19 +5,31 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proyecto.auditoria.dto.AuditoriaRequestDTO;
-import com.proyecto.auditoria.dto.AuditoriaResponseDTO;
-import com.proyecto.auditoria.exception.ResourceNotFoundException;
+import com.proyecto.auditoria.client.AdministrativoClient;
+import com.proyecto.auditoria.client.FichaClinicaClient;
+import com.proyecto.auditoria.dto.request.AuditoriaRequestDTO;
+import com.proyecto.auditoria.dto.response.AuditoriaResponseDTO;
+import com.proyecto.auditoria.exceptions.NotFoundException;
+import com.proyecto.auditoria.exceptions.RemoteServiceException;
 import com.proyecto.auditoria.model.AuditoriaModel;
 import com.proyecto.auditoria.repository.AuditoriaRepository;
+
+import feign.FeignException;
 
 @Service
 @Transactional
 public class AuditoriaService {
 
     private final AuditoriaRepository auditoriaRepository;
-    public AuditoriaService(AuditoriaRepository auditoriaRepository) {
+    private final AdministrativoClient administrativoClient;
+    private final FichaClinicaClient fichaClinicaClient;
+
+    public AuditoriaService(AuditoriaRepository auditoriaRepository,
+                            AdministrativoClient administrativoClient,
+                            FichaClinicaClient fichaClinicaClient) {
         this.auditoriaRepository = auditoriaRepository;
+        this.administrativoClient = administrativoClient;
+        this.fichaClinicaClient = fichaClinicaClient;
     }
 
     @Transactional(readOnly = true)
@@ -31,6 +43,8 @@ public class AuditoriaService {
     }
 
     public AuditoriaResponseDTO create(AuditoriaRequestDTO request) {
+        validarAdministrativo(request.idAdministrativo());
+        validarFichaClinica(request.folioFicha());
         AuditoriaModel auditoria = new AuditoriaModel();
         copy(request, auditoria);
         return toResponse(auditoriaRepository.save(auditoria));
@@ -38,6 +52,8 @@ public class AuditoriaService {
 
     public AuditoriaResponseDTO update(Long id, AuditoriaRequestDTO request) {
         AuditoriaModel auditoria = findEntity(id);
+        validarAdministrativo(request.idAdministrativo());
+        validarFichaClinica(request.folioFicha());
         copy(request, auditoria);
         return toResponse(auditoriaRepository.save(auditoria));
     }
@@ -46,9 +62,31 @@ public class AuditoriaService {
         auditoriaRepository.delete(findEntity(id));
     }
 
+    private void validarAdministrativo(Long idAdministrativo) {
+        try {
+            administrativoClient.obtenerPorId(idAdministrativo);
+        } catch (FeignException.NotFound e) {
+            throw new NotFoundException("No existe el administrativo con id: " + idAdministrativo);
+        } catch (FeignException e) {
+            throw new RemoteServiceException("Error al comunicarse con el microservicio de administrativos");
+        }
+    }
+
+    private void validarFichaClinica(String folioFichaStr) {
+        try {
+            fichaClinicaClient.obtenerPorFolio(Long.parseLong(folioFichaStr));
+        } catch (NumberFormatException e) {
+            throw new NotFoundException("Folio de ficha clínica inválido: " + folioFichaStr);
+        } catch (FeignException.NotFound e) {
+            throw new NotFoundException("No existe ficha clínica con folio: " + folioFichaStr);
+        } catch (FeignException e) {
+            throw new RemoteServiceException("Error al comunicarse con el microservicio de ficha clínica");
+        }
+    }
+
     private AuditoriaModel findEntity(Long id) {
         return auditoriaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Auditoria no encontrada con id: " + id));
+                .orElseThrow(() -> new NotFoundException("Auditoría no encontrada con id: " + id));
     }
 
     private void copy(AuditoriaRequestDTO request, AuditoriaModel auditoria) {
@@ -66,7 +104,6 @@ public class AuditoriaService {
                 auditoria.getFolioFicha(),
                 auditoria.getFechaAuditoria(),
                 auditoria.getAccion(),
-                auditoria.getDetalle()
-        );
+                auditoria.getDetalle());
     }
 }

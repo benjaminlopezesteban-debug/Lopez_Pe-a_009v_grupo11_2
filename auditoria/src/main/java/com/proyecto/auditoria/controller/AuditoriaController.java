@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.proyecto.auditoria.dto.AuditoriaRequestDTO;
-import com.proyecto.auditoria.dto.AuditoriaResponseDTO;
+import com.proyecto.auditoria.dto.request.AuditoriaRequestDTO;
+import com.proyecto.auditoria.dto.response.AuditoriaResponseDTO;
 import com.proyecto.auditoria.service.AuditoriaService;
 
 import jakarta.validation.Valid;
@@ -55,4 +55,3 @@ public class AuditoriaController {
         return ResponseEntity.noContent().build();
     }
 }
-

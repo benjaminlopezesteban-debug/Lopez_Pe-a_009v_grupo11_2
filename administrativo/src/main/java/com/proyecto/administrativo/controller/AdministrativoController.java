@@ -1,7 +1,6 @@
 package com.proyecto.administrativo.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,48 +16,43 @@ import com.proyecto.administrativo.model.AdministrativoModel;
 import com.proyecto.administrativo.service.AdministrativoService;
 
 @RestController
-@RequestMapping("/api/v1/administrativo")
+@RequestMapping("/api/v1/administrativos")
 public class AdministrativoController {
 
     private final AdministrativoService administrativoService;
 
-    public AdministrativoController(AdministrativoService administrativoService){
+    public AdministrativoController(AdministrativoService administrativoService) {
         this.administrativoService = administrativoService;
     }
 
     @GetMapping
-    public List<AdministrativoModel> listAll(){
-        return administrativoService.listAll();
+    public ResponseEntity<List<AdministrativoModel>> listAll() {
+        return ResponseEntity.ok(administrativoService.listAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AdministrativoModel> findById(@PathVariable Long id){
-        Optional<AdministrativoModel> administrativo = administrativoService.findById(id);
-        return administrativo.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AdministrativoModel> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(administrativoService.findById(id));
     }
 
     @GetMapping("/rut/{rut}")
-    public ResponseEntity<AdministrativoModel> findByRut(@PathVariable String rut){
-        Optional<AdministrativoModel> administrativo = administrativoService.findByRut(rut);
-        return administrativo.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AdministrativoModel> findByRut(@PathVariable String rut) {
+        return ResponseEntity.ok(administrativoService.findByRut(rut));
+    }
+
+    @GetMapping("/cargo/{charge}")
+    public ResponseEntity<List<AdministrativoModel>> findByCharge(@PathVariable String charge) {
+        return ResponseEntity.ok(administrativoService.findByCharge(charge));
     }
 
     @PostMapping
-    public ResponseEntity<AdministrativoModel> save(@RequestBody AdministrativoModel administrativo){
+    public ResponseEntity<AdministrativoModel> save(@RequestBody AdministrativoModel administrativo) {
         return ResponseEntity.status(HttpStatus.CREATED).body(administrativoService.save(administrativo));
     }
-    
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         administrativoService.delete(id);
         return ResponseEntity.noContent().build();
     }
-    
-    @GetMapping("/cargo/{charge}")
-    public List<AdministrativoModel> findByCharge(@PathVariable String charge){
-        return administrativoService.findByCharge(charge);
-    }
 }
-

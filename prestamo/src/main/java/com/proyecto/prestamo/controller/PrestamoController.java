@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.proyecto.prestamo.dto.PrestamoRequestDTO;
-import com.proyecto.prestamo.dto.PrestamoResponseDTO;
+import com.proyecto.prestamo.dto.request.PrestamoRequestDTO;
+import com.proyecto.prestamo.dto.response.PrestamoResponseDTO;
 import com.proyecto.prestamo.service.PrestamoService;
 
 import jakarta.validation.Valid;

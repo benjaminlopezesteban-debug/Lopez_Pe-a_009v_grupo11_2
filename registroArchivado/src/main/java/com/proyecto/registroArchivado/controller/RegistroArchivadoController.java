@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.proyecto.registroArchivado.dto.RegistroArchivadoRequestDTO;
-import com.proyecto.registroArchivado.dto.RegistroArchivadoResponseDTO;
+import com.proyecto.registroArchivado.dto.request.RegistroArchivadoRequestDTO;
+import com.proyecto.registroArchivado.dto.response.RegistroArchivadoResponseDTO;
 import com.proyecto.registroArchivado.service.RegistroArchivadoService;
 
 import jakarta.validation.Valid;

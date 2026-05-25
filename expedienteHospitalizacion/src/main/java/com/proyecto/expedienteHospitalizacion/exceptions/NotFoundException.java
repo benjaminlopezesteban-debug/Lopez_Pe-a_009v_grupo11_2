@@ -1,4 +1,4 @@
-package com.proyecto.expedienteHospitalizacion.exception;
+package com.proyecto.expedienteHospitalizacion.exceptions;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) { super(message); }

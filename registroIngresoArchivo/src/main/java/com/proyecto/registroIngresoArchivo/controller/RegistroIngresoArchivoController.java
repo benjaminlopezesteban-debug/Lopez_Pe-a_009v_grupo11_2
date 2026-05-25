@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.proyecto.registroIngresoArchivo.dto.RegistroIngresoArchivoRequestDTO;
-import com.proyecto.registroIngresoArchivo.dto.RegistroIngresoArchivoResponseDTO;
+import com.proyecto.registroIngresoArchivo.dto.request.RegistroIngresoArchivoRequestDTO;
+import com.proyecto.registroIngresoArchivo.dto.response.RegistroIngresoArchivoResponseDTO;
 import com.proyecto.registroIngresoArchivo.service.RegistroIngresoArchivoService;
 
 import jakarta.validation.Valid;
